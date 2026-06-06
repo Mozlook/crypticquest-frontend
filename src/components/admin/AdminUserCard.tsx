@@ -103,6 +103,7 @@ export default function AdminUserCard({
             value={user.role}
             disabled={busy === 'role'}
             onChange={(e) => changeRole(e.target.value as Role)}
+            aria-label={`Role for ${user.username}`}
             className={controlClass}
           >
             <option value="player">player</option>
@@ -117,6 +118,7 @@ export default function AdminUserCard({
             min={1}
             value={levelInput}
             onChange={(e) => setLevelInput(e.target.value)}
+            aria-label={`Current level for ${user.username}`}
             className={`${controlClass} w-20 tabular-nums`}
           />
           <button

@@ -104,6 +104,7 @@ export default function HintsEditor({ levelId }: { levelId: number }) {
                     value={text}
                     onChange={(e) => setAt(i, e.target.value)}
                     placeholder="hint text"
+                    aria-label={`Hint ${i + 1}`}
                     className={fieldClass}
                   />
                   <button type="button" onClick={() => move(i, -1)} disabled={i === 0} className={iconBtn} aria-label="Move up">

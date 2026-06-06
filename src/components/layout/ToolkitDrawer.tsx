@@ -1,11 +1,13 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 
 // ToolkitDrawer is a right-side slide-over for the player's toolkit. It overlays
-// the current view (puzzle stays behind, dimmed) so tools are reachable without
-// navigating away. Always mounted; `open` toggles the slide + backdrop so enter
-// and exit both animate. Closes on Esc or backdrop click.
+// the current view (puzzle stays behind, lightly dimmed) so tools are reachable
+// without navigating away. Always mounted; `open` toggles the slide + backdrop
+// so enter and exit both animate. Closes on Esc or backdrop click.
 //
-// Content is passed as children — Phase 3 fills it with the unlocked tools list.
+// a11y: when closed the panel is `inert` (off-screen but otherwise still in the
+// DOM — without this its buttons/links stay tabbable). On open, focus moves to
+// the close button; on close, it returns to whatever was focused before.
 export default function ToolkitDrawer({
   open,
   onClose,
@@ -15,6 +17,9 @@ export default function ToolkitDrawer({
   onClose: () => void
   children?: ReactNode
 }) {
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const prevFocus = useRef<HTMLElement | null>(null)
+
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
@@ -23,6 +28,15 @@ export default function ToolkitDrawer({
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
+
+  useEffect(() => {
+    if (open) {
+      prevFocus.current = document.activeElement as HTMLElement | null
+      closeRef.current?.focus()
+    } else {
+      prevFocus.current?.focus?.()
+    }
+  }, [open])
 
   return (
     <>
@@ -38,6 +52,7 @@ export default function ToolkitDrawer({
         role="dialog"
         aria-modal="true"
         aria-label="Toolkit"
+        inert={!open}
         className={`fixed right-0 top-0 z-40 flex h-full w-80 max-w-[85vw] flex-col border-l border-border bg-surface shadow-2xl shadow-black/60 transition-transform duration-200 ease-out ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
@@ -47,6 +62,7 @@ export default function ToolkitDrawer({
             toolkit
           </h2>
           <button
+            ref={closeRef}
             onClick={onClose}
             aria-label="Close toolkit"
             className="font-mono text-fg-muted transition-colors hover:text-fg"

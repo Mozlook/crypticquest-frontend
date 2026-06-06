@@ -63,6 +63,14 @@ body {
   color: var(--color-accent-fg);
 }
 
+/* Visible keyboard focus across interactive elements. Inputs/textarea/select
+   define their own focus ring and set focus:outline-none, which wins here, so
+   this targets buttons, links, and anything else reached by keyboard. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 /* Terminal caret blink, reused by decrypting/typing elements. */
 @keyframes cq-blink {
   0%, 49% { opacity: 1; }
