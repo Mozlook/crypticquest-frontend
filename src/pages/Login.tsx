@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import AuthShell from '../components/auth/AuthShell'
 import TextField from '../components/ui/TextField'
 import SubmitButton from '../components/ui/SubmitButton'
@@ -8,7 +8,6 @@ import { ApiError } from '../lib/api'
 
 export default function Login() {
   const { login } = useAuth()
-  const navigate = useNavigate()
   // After registration we land here with a success flag and the identifier to
   // prefill (set by the register page via navigation state).
   const nav = useLocation().state as { registered?: boolean; username?: string } | null
@@ -23,7 +22,8 @@ export default function Login() {
     setSubmitting(true)
     try {
       await login(username, password)
-      navigate('/', { replace: true })
+      // On success the status flips to authenticated and PublicOnlyRoute
+      // redirects away (honoring any deep-link `from`); no navigate here.
     } catch (err) {
       // Backend returns a single generic message for bad credentials; show it
       // as-is (no "almost", no field-level hints).

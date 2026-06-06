@@ -1,24 +1,15 @@
-import { Navigate } from 'react-router-dom'
 import { useAuth } from '../auth/context'
 import { useDecrypt } from '../hooks/useDecrypt'
 
 // Home is a TEMPORARY authenticated landing used to verify the auth loop end to
-// end (login → cookie → /api/me → state). The loading/redirect guard here is the
-// seed of the real ProtectedRoute + app shell (Phase 1/2 backlog items).
+// end (login → cookie → /api/me → state). It renders only inside ProtectedRoute,
+// so the user is guaranteed present. It will be replaced by the app shell +
+// gameplay views (Phase 2).
 export default function Home() {
-  const { status, user, logout } = useAuth()
+  const { user, logout } = useAuth()
   const granted = useDecrypt('ACCESS GRANTED', { speed: 45 })
 
-  if (status === 'loading') {
-    return (
-      <div className="flex min-h-screen items-center justify-center font-mono text-sm text-fg-muted">
-        <span className="cq-caret">establishing link</span>
-      </div>
-    )
-  }
-  if (status === 'unauthenticated' || !user) {
-    return <Navigate to="/login" replace />
-  }
+  if (!user) return null
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-6">
