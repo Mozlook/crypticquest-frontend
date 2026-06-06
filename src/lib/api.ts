@@ -70,6 +70,13 @@ async function request<T>(
   return data as T
 }
 
+// fileUrl turns a relative gated-download path (from endpoints.levelFile /
+// toolFile) into an absolute URL on the backend origin, for use as an <a href>.
+// The browser sends the session cookie automatically on the navigation.
+export function fileUrl(path: string) {
+  return `${BASE_URL}${path}`
+}
+
 // Thin verb helpers. Generic <T> is the expected success-response shape.
 export const api = {
   get: <T>(path: string) => request<T>('GET', path),

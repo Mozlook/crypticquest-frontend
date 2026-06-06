@@ -9,3 +9,14 @@ export interface LevelListItem {
   title: string
   solved: boolean
 }
+
+// LevelDetail is GET /api/levels/{id} — one level's player view (no flag).
+// `files` lists the names of downloadable attachments served from
+// /files/levels/{id}/<name> (empty when the level has none).
+export interface LevelDetail {
+  id: number
+  title: string
+  description: string
+  solved: boolean
+  files: string[]
+}

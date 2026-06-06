@@ -12,6 +12,9 @@ import { ApiError, api } from '../lib/api'
 export function useApi<T>(path: string) {
   const [data, setData] = useState<T | null>(null)
   const [error, setError] = useState<string | null>(null)
+  // HTTP status of the error (e.g. 404/403) so callers can branch on it; null
+  // when there is no error or it wasn't an ApiError (network failure).
+  const [errorStatus, setErrorStatus] = useState<number | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
 
   const reload = useCallback(() => setReloadKey((k) => k + 1), [])
@@ -24,15 +27,17 @@ export function useApi<T>(path: string) {
         if (cancelled) return
         setData(d)
         setError(null)
+        setErrorStatus(null)
       })
       .catch((e) => {
         if (cancelled) return
         setError(e instanceof ApiError ? e.message : 'Request failed.')
+        setErrorStatus(e instanceof ApiError ? e.status : null)
       })
     return () => {
       cancelled = true
     }
   }, [path, reloadKey])
 
-  return { data, error, loading: data === null && error === null, reload }
+  return { data, error, errorStatus, loading: data === null && error === null, reload }
 }

@@ -6,6 +6,7 @@ import ProtectedRoute from './routes/ProtectedRoute'
 import PublicOnlyRoute from './routes/PublicOnlyRoute'
 import AppLayout from './components/layout/AppLayout'
 import Levels from './pages/Levels'
+import Puzzle from './pages/Puzzle'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import NotFound from './pages/NotFound'
@@ -32,6 +33,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<Levels />} />
+          <Route path="/levels/:id" element={<Puzzle />} />
         </Route>
       </Route>
 
