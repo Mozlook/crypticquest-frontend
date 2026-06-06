@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/*
+  CrypticQuest — color scheme (single source of truth).
+
+  Every token below lives in Tailwind's @theme, so Tailwind auto-generates the
+  matching utilities: --color-accent → bg-accent / text-accent / border-accent,
+  --color-surface-2 → bg-surface-2, and so on. Re-theming the whole app is a
+  matter of editing these values — nothing downstream hardcodes a hex.
+*/
+@theme {
+  /* Surfaces — dark terminal stack, back (bg) to front (surface-2). */
+  --color-bg: #0a0e14;          /* page background            */
+  --color-surface: #121821;     /* cards, panels              */
+  --color-surface-2: #1b2430;   /* raised: inputs, hover rows */
+  --color-border: #263241;      /* hairlines, dividers        */
+
+  /* Text. */
+  --color-fg: #e6edf3;          /* primary text               */
+  --color-fg-muted: #8b98a9;    /* secondary text, labels     */
+  --color-fg-subtle: #5a6675;   /* disabled, placeholders     */
+
+  /* Brand / accent — cryptographic terminal green. */
+  --color-accent: #34d399;
+  --color-accent-hover: #6ee7b7;
+  --color-accent-fg: #052015;   /* text on an accent surface  */
+
+  /* Status. */
+  --color-success: #34d399;     /* solved, correct            */
+  --color-danger: #f87171;      /* wrong answer, errors       */
+  --color-warning: #fbbf24;     /* hint timers, caution       */
+
+  /* Typography. Mono carries the "terminal" feel for code/flags. */
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
