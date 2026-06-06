@@ -8,19 +8,24 @@ import { useState, type InputHTMLAttributes } from 'react'
 // input readOnly — browsers don't autofill/suggest into a readOnly field — and
 // drop readOnly on first focus so the user can type normally. The data-* attrs
 // silence the common password-manager extensions.
+//
+// hint renders a small helper line under the input, wired via aria-describedby.
 interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   noAutofill?: boolean
+  hint?: string
 }
 
 export default function TextField({
   label,
   id,
   noAutofill,
+  hint,
   onFocus,
   ...props
 }: TextFieldProps) {
   const [readOnly, setReadOnly] = useState(noAutofill ?? false)
+  const hintId = hint ? `${id}-hint` : undefined
 
   const guardProps = noAutofill
     ? {
@@ -46,10 +51,16 @@ export default function TextField({
       </label>
       <input
         id={id}
+        aria-describedby={hintId}
         className="w-full rounded-md border border-border bg-surface-2/70 px-3.5 py-2.5 font-mono text-fg transition-[border-color,box-shadow] placeholder:text-fg-subtle focus:border-accent focus:shadow-[0_0_0_3px_rgba(52,245,160,0.12)] focus:outline-none"
         {...guardProps}
         {...props}
       />
+      {hint && (
+        <p id={hintId} className="mt-1.5 font-mono text-xs text-fg-subtle">
+          {hint}
+        </p>
+      )}
     </div>
   )
 }

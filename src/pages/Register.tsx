@@ -1,32 +1,36 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import AuthShell from '../components/auth/AuthShell'
 import TextField from '../components/ui/TextField'
 import SubmitButton from '../components/ui/SubmitButton'
 import { useAuth } from '../auth/context'
 import { ApiError } from '../lib/api'
 
-export default function Login() {
-  const { login } = useAuth()
+export default function Register() {
+  const { register } = useAuth()
   const navigate = useNavigate()
-  // After registration we land here with a success flag and the identifier to
-  // prefill (set by the register page via navigation state).
-  const nav = useLocation().state as { registered?: boolean; username?: string } | null
-  const [username, setUsername] = useState(nav?.username ?? '')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
+    // The only check the backend can't make for us; everything else (length,
+    // charset, uniqueness) is validated server-side and surfaced as-is.
+    if (password !== confirm) {
+      setError('Passphrases do not match.')
+      return
+    }
     setSubmitting(true)
     try {
-      await login(username, password)
-      navigate('/', { replace: true })
+      await register(username, password)
+      // Registration creates no session — hand the new agent to login, with a
+      // success banner and their identifier prefilled.
+      navigate('/login', { replace: true, state: { registered: true, username } })
     } catch (err) {
-      // Backend returns a single generic message for bad credentials; show it
-      // as-is (no "almost", no field-level hints).
       setError(err instanceof ApiError ? err.message : 'Something went wrong.')
       setSubmitting(false)
     }
@@ -34,32 +38,23 @@ export default function Login() {
 
   return (
     <AuthShell
-      subtitle="authenticate to access the archive"
+      subtitle="request access // new operative"
       footer={
         <>
-          no clearance?{' '}
-          <Link to="/register" className="text-accent transition-colors hover:text-accent-hover">
-            request access
+          already cleared?{' '}
+          <Link to="/login" className="text-accent transition-colors hover:text-accent-hover">
+            authenticate
           </Link>
         </>
       }
     >
-      {nav?.registered && (
-        <p
-          role="status"
-          className="mb-5 rounded-md border border-accent/30 bg-accent/10 px-3 py-2 font-mono text-sm text-accent"
-        >
-          <span className="text-accent/70">✓ </span>
-          account created — authenticate to continue
-        </p>
-      )}
-
       <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off" noValidate>
         <TextField
           id="username"
           label="identifier"
           autoComplete="off"
           noAutofill
+          hint="3–32 chars · letters, digits, . _ -"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           autoFocus
@@ -71,8 +66,19 @@ export default function Login() {
           type="password"
           autoComplete="off"
           noAutofill
+          hint="8–72 characters"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <TextField
+          id="confirm"
+          label="confirm passphrase"
+          type="password"
+          autoComplete="off"
+          noAutofill
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
           required
         />
 
@@ -87,7 +93,7 @@ export default function Login() {
         )}
 
         <SubmitButton loading={submitting}>
-          {submitting ? 'authenticating…' : 'authenticate →'}
+          {submitting ? 'provisioning…' : 'request access →'}
         </SubmitButton>
       </form>
     </AuthShell>
