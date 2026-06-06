@@ -1,14 +1,15 @@
 import { Routes, Route } from 'react-router-dom'
-import PalettePreview from './components/PalettePreview'
+import Home from './pages/Home'
+import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 
-// App holds the route map. It grows as phases land: auth pages (Phase 1),
-// gameplay views behind a protected layout (Phase 2), the admin group (Phase 4).
-// For now "/" shows the temporary palette preview.
+// App holds the route map. It grows as phases land: register (next), a proper
+// ProtectedRoute + app shell, the gameplay views, and the admin group.
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<PalettePreview />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )

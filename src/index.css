@@ -1,37 +1,42 @@
 @import "tailwindcss";
 
 /*
-  CrypticQuest — color scheme (single source of truth).
+  CrypticQuest — "Intelligence Terminal" theme (single source of truth).
 
-  Every token below lives in Tailwind's @theme, so Tailwind auto-generates the
-  matching utilities: --color-accent → bg-accent / text-accent / border-accent,
-  --color-surface-2 → bg-surface-2, and so on. Re-theming the whole app is a
-  matter of editing these values — nothing downstream hardcodes a hex.
+  Every token lives in Tailwind's @theme, so utilities are auto-generated:
+  --color-accent → bg-accent/text-accent/border-accent, --font-display →
+  font-display, etc. Re-theming the app is editing values here; nothing
+  downstream hardcodes a hex or font stack.
 */
 @theme {
-  /* Surfaces — dark terminal stack, back (bg) to front (surface-2). */
-  --color-bg: #0a0e14;          /* page background            */
-  --color-surface: #121821;     /* cards, panels              */
-  --color-surface-2: #1b2430;   /* raised: inputs, hover rows */
-  --color-border: #263241;      /* hairlines, dividers        */
+  /* Surfaces — cold near-black stack, back (bg) to front (surface-2). */
+  --color-bg: #06090e;            /* page background            */
+  --color-surface: #0c1219;       /* cards, the terminal window */
+  --color-surface-2: #131b25;     /* raised: inputs, hover rows */
+  --color-border: #1e2935;        /* hairlines, dividers        */
+  --color-border-strong: #2c3a49; /* focus rings, active edges  */
 
   /* Text. */
-  --color-fg: #e6edf3;          /* primary text               */
-  --color-fg-muted: #8b98a9;    /* secondary text, labels     */
-  --color-fg-subtle: #5a6675;   /* disabled, placeholders     */
+  --color-fg: #d7e1ea;            /* primary text               */
+  --color-fg-muted: #7a8a99;      /* secondary text, labels     */
+  --color-fg-subtle: #47545f;     /* disabled, placeholders     */
 
-  /* Brand / accent — cryptographic terminal green. */
-  --color-accent: #34d399;
-  --color-accent-hover: #6ee7b7;
-  --color-accent-fg: #052015;   /* text on an accent surface  */
+  /* Accent — phosphor green (the single sharp signal color). */
+  --color-accent: #34f5a0;
+  --color-accent-hover: #6dffc1;
+  --color-accent-fg: #04140c;     /* text on an accent surface  */
+
+  /* Cipher cyan — decorative secondary, used sparingly (atmosphere, links). */
+  --color-cipher: #45d6ff;
 
   /* Status. */
-  --color-success: #34d399;     /* solved, correct            */
-  --color-danger: #f87171;      /* wrong answer, errors       */
-  --color-warning: #fbbf24;     /* hint timers, caution       */
+  --color-success: #34f5a0;       /* solved, correct            */
+  --color-danger: #ff5f5f;        /* wrong answer, errors       */
+  --color-warning: #f5bb3f;       /* hint timers, caution       */
 
-  /* Typography. Mono carries the "terminal" feel for code/flags. */
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  /* Typography. Display = HUD headings; mono = everything else (terminal). */
+  --font-display: "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 :root {
@@ -48,6 +53,37 @@ body {
   margin: 0;
   background-color: var(--color-bg);
   color: var(--color-fg);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-mono);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+}
+
+/* Terminal caret blink, reused by decrypting/typing elements. */
+@keyframes cq-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* Staggered entrance for page-load reveals. Paired with inline animation-delay. */
+@keyframes cq-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cq-rise {
+    animation: cq-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+.cq-caret::after {
+  content: "▋";
+  margin-left: 0.1em;
+  color: var(--color-accent);
+  animation: cq-blink 1.1s step-end infinite;
 }
