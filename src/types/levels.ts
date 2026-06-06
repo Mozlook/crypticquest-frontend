@@ -26,3 +26,16 @@ export interface LevelDetail {
 export interface SubmitResult {
   correct: boolean
 }
+
+// AdminLevel is the admin-surface view of a level (GET/POST/PUT /api/admin/levels)
+// — it includes the flag and the raw order_index, unlike any player view. Field
+// names are snake_case to match the admin API. unlocks_tool_id is null when the
+// level unlocks no tool.
+export interface AdminLevel {
+  id: number
+  order_index: number
+  title: string
+  description: string
+  flag: string
+  unlocks_tool_id: number | null
+}
