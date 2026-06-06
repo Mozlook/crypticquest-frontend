@@ -5,6 +5,7 @@ import { endpoints } from '../../lib/endpoints'
 import type { AdminLevel } from '../../types/levels'
 import type { Tool } from '../../types/tools'
 import LevelForm from '../../components/admin/LevelForm'
+import HintsEditor from '../../components/admin/HintsEditor'
 import AdminLevelRow from '../../components/admin/AdminLevelRow'
 
 // AdminLevels is the puzzles CRUD section: a table of every level (flag and
@@ -34,12 +35,17 @@ export default function AdminLevels() {
 
   if (editing !== null) {
     return (
-      <LevelForm
-        level={editing === 'new' ? null : editing}
-        tools={toolList}
-        onSaved={handleSaved}
-        onCancel={() => setEditing(null)}
-      />
+      <div className="space-y-8">
+        <LevelForm
+          level={editing === 'new' ? null : editing}
+          tools={toolList}
+          onSaved={handleSaved}
+          onCancel={() => setEditing(null)}
+        />
+        {/* Hints save independently (replace-all PUT) and need a level id, so
+            they're available only when editing an existing level. */}
+        {editing !== 'new' && <HintsEditor levelId={editing.id} />}
+      </div>
     )
   }
 
