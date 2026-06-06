@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { api } from '../lib/api'
+import { ApiError, api } from '../lib/api'
 import { endpoints } from '../lib/endpoints'
 import type { Me } from '../types/auth'
 import { AuthContext, type AuthContextValue, type AuthStatus } from './context'
@@ -11,27 +11,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Me | null>(null)
   const [status, setStatus] = useState<AuthStatus>('loading')
 
-  // Bootstrap: is there already a valid session cookie? A 401 (or any failure)
-  // simply means "not logged in" for now; a dedicated error screen for the
-  // can't-reach-server case is a later backlog item.
-  useEffect(() => {
-    let cancelled = false
+  // Bootstrap: is there already a valid session cookie? A clean 401 means "not
+  // logged in"; anything else (network failure, 5xx) is an error state, so we
+  // show a retry screen instead of dumping the user on login. Only the async
+  // resolution touches state here (the initial state is already 'loading'), so
+  // nothing is set synchronously from the effect.
+  const runBootstrap = useCallback(() => {
     api
       .get<Me>(endpoints.me)
       .then((me) => {
-        if (cancelled) return
         setUser(me)
         setStatus('authenticated')
       })
-      .catch(() => {
-        if (cancelled) return
+      .catch((err) => {
         setUser(null)
-        setStatus('unauthenticated')
+        setStatus(err instanceof ApiError && err.status === 401 ? 'unauthenticated' : 'error')
       })
-    return () => {
-      cancelled = true
-    }
   }, [])
+
+  useEffect(() => {
+    runBootstrap()
+  }, [runBootstrap])
+
+  // retry is invoked from the connection-error screen (a click handler, not an
+  // effect), so flipping back to 'loading' here is fine.
+  const retry = useCallback(() => {
+    setStatus('loading')
+    runBootstrap()
+  }, [runBootstrap])
 
   const refresh = useCallback(async () => {
     const me = await api.get<Me>(endpoints.me)
@@ -63,8 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, status, login, register, logout, refresh }),
-    [user, status, login, register, logout, refresh],
+    () => ({ user, status, login, register, logout, refresh, retry }),
+    [user, status, login, register, logout, refresh, retry],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

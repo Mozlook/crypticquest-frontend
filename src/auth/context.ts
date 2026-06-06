@@ -4,8 +4,11 @@ import type { Me } from '../types/auth'
 // AuthStatus is a small state machine for the bootstrap:
 //   loading        — /api/me in flight; render nothing decisive yet
 //   authenticated  — user is set
-//   unauthenticated— no valid session
-export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated'
+//   unauthenticated— no valid session (a clean 401)
+//   error          — the bootstrap could not complete (network/server down) —
+//                    distinct from unauthenticated so we don't dump the user on
+//                    login when the truth is "couldn't reach the server"
+export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'error'
 
 export interface AuthContextValue {
   user: Me | null
@@ -20,6 +23,8 @@ export interface AuthContextValue {
   logout: () => Promise<void>
   // refresh re-reads /api/me — e.g. after solving a level unlocks the next one.
   refresh: () => Promise<void>
+  // retry re-runs the bootstrap; used by the connection-error screen.
+  retry: () => void
 }
 
 // Undefined default lets useAuth detect "used outside a provider".
