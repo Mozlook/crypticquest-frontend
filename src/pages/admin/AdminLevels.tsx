@@ -90,7 +90,8 @@ export default function AdminLevels() {
       )}
 
       {levels && levels.length > 0 && (
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[36rem]">
           <thead>
             <tr className="border-b border-border text-left">
               {['order', 'title', 'flag', 'unlocks', ''].map((h, i) => (
@@ -115,6 +116,7 @@ export default function AdminLevels() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )

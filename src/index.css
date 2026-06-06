@@ -43,6 +43,14 @@
   color-scheme: dark;
 }
 
+/* Base size knob: Tailwind's text/spacing/max-width utilities are rem-based, so
+   bumping the root font-size scales the whole UI proportionally. 112.5% = 18px
+   (from the 16px default). Tune this one value to grow/shrink everything. % (not
+   px) keeps the user's browser font preference respected. */
+html {
+  font-size: 112.5%;
+}
+
 html,
 body,
 #root {

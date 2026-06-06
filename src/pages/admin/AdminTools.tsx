@@ -76,7 +76,8 @@ export default function AdminTools() {
       )}
 
       {tools && tools.length > 0 && (
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[36rem]">
           <thead>
             <tr className="border-b border-border text-left">
               {['type', 'title', 'content', ''].map((h, i) => (
@@ -100,6 +101,7 @@ export default function AdminTools() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )
