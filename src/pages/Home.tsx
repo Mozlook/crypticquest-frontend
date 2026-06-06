@@ -1,18 +1,17 @@
 import { useAuth } from '../auth/context'
 import { useDecrypt } from '../hooks/useDecrypt'
 
-// Home is a TEMPORARY authenticated landing used to verify the auth loop end to
-// end (login → cookie → /api/me → state). It renders only inside ProtectedRoute,
-// so the user is guaranteed present. It will be replaced by the app shell +
-// gameplay views (Phase 2).
+// Home is a TEMPORARY index, rendered inside AppLayout. It shows a small agent
+// dashboard to confirm the shell + session data. It will be replaced by the
+// level list view (next Phase 2 item).
 export default function Home() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const granted = useDecrypt('ACCESS GRANTED', { speed: 45 })
 
   if (!user) return null
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-6">
+    <div className="mx-auto max-w-2xl">
       <p className="font-display text-2xl font-bold tracking-tight text-accent">
         {granted}
       </p>
@@ -21,20 +20,14 @@ export default function Home() {
         <Row label="clearance" value={user.role} />
         <Row label="current level" value={String(user.currentLevel)} />
       </div>
-      <button
-        onClick={() => logout()}
-        className="mt-6 self-start rounded-md border border-border px-4 py-2 font-mono text-sm text-fg-muted transition-colors hover:border-danger hover:text-danger"
-      >
-        terminate session
-      </button>
-    </main>
+    </div>
   )
 }
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between border-b border-border/60 py-2 last:border-0">
-      <span className="text-fg-subtle uppercase tracking-[0.12em]">{label}</span>
+      <span className="uppercase tracking-[0.12em] text-fg-subtle">{label}</span>
       <span className="text-fg">{value}</span>
     </div>
   )

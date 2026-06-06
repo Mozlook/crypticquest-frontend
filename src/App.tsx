@@ -4,6 +4,7 @@ import FullScreenLoader from './components/FullScreenLoader'
 import ConnectionError from './components/ConnectionError'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PublicOnlyRoute from './routes/PublicOnlyRoute'
+import AppLayout from './components/layout/AppLayout'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -29,7 +30,9 @@ function App() {
       </Route>
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<Home />} />
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Home />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<NotFound />} />
