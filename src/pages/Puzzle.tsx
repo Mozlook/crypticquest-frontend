@@ -1,8 +1,11 @@
+import { useCallback } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { useApi } from '../hooks/useApi'
+import { useAuth } from '../auth/context'
 import { fileUrl } from '../lib/api'
 import { endpoints } from '../lib/endpoints'
 import type { LevelDetail } from '../types/levels'
+import SubmitFlag from '../components/levels/SubmitFlag'
 
 // Puzzle is the single-level view: title, narrative, and any downloadable
 // attachments (served through the gated /files/levels/{id}/...). The access gate
@@ -13,13 +16,25 @@ export default function Puzzle() {
   const { id } = useParams()
   if (!id) return <Navigate to="/" replace />
 
-  return <PuzzleView id={id} />
+  // key={id} remounts the view when navigating between levels (same route, new
+  // param), so the fetch and the submit form reset instead of carrying state
+  // (e.g. a lingering "correct" / "locating…") from the previous puzzle.
+  return <PuzzleView key={id} id={id} />
 }
 
 function PuzzleView({ id }: { id: string }) {
+  const { refresh } = useAuth()
   const { data: level, error, errorStatus, loading, reload } = useApi<LevelDetail>(
     endpoints.level(id),
   )
+
+  // On a correct answer: refresh auth state (current level + unlocked tools) and
+  // re-fetch the level so its solved badge updates. The level list refetches on
+  // its own when the player navigates back.
+  const handleSolved = useCallback(() => {
+    refresh()
+    reload()
+  }, [refresh, reload])
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -79,6 +94,8 @@ function PuzzleView({ id }: { id: string }) {
               </div>
             )}
           </div>
+
+          <SubmitFlag levelId={id} onSolved={handleSolved} />
         </article>
       )}
     </div>

@@ -20,3 +20,9 @@ export interface LevelDetail {
   solved: boolean
   files: string[]
 }
+
+// SubmitResult is POST /api/levels/{id}/submit — only whether the answer was
+// correct, never how close (the backend deliberately gives no other signal).
+export interface SubmitResult {
+  correct: boolean
+}
