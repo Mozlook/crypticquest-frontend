@@ -6,6 +6,7 @@ import { fileUrl } from '../lib/api'
 import { endpoints } from '../lib/endpoints'
 import type { LevelDetail } from '../types/levels'
 import SubmitFlag from '../components/levels/SubmitFlag'
+import Hints from '../components/levels/Hints'
 
 // Puzzle is the single-level view: title, narrative, and any downloadable
 // attachments (served through the gated /files/levels/{id}/...). The access gate
@@ -94,6 +95,8 @@ function PuzzleView({ id }: { id: string }) {
               </div>
             )}
           </div>
+
+          <Hints levelId={id} />
 
           <SubmitFlag levelId={id} onSolved={handleSolved} />
         </article>
