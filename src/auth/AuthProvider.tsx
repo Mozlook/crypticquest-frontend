@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { ApiError, api } from '../lib/api'
+import { ApiError, api, setUnauthorizedHandler } from '../lib/api'
 import { endpoints } from '../lib/endpoints'
 import type { Me } from '../types/auth'
 import { AuthContext, type AuthContextValue, type AuthStatus } from './context'
@@ -32,6 +32,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     runBootstrap()
   }, [runBootstrap])
+
+  // Any 401 from the API client (a session that expired mid-session) drops us to
+  // unauthenticated; the route guards then redirect to login.
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      setUser(null)
+      setStatus('unauthenticated')
+    })
+    return () => setUnauthorizedHandler(null)
+  }, [])
 
   // retry is invoked from the connection-error screen (a click handler, not an
   // effect), so flipping back to 'loading' here is fine.

@@ -11,6 +11,15 @@
 
 const BASE_URL = import.meta.env.VITE_API_URL
 
+// onUnauthorized is a single global hook fired whenever any request gets a 401.
+// AuthProvider registers it to clear auth state, so an expired session mid-app
+// flips the route guards to redirect to login instead of each call failing
+// silently. Kept here (not in React) so every request routes through it.
+let onUnauthorized: (() => void) | null = null
+export function setUnauthorizedHandler(fn: (() => void) | null) {
+  onUnauthorized = fn
+}
+
 // ApiError carries the HTTP status so callers can branch (401 → login,
 // 403 → forbidden, 409 → conflict) without string-matching messages.
 // status 0 means the request never reached the server (network/CORS failure).
@@ -62,6 +71,9 @@ async function request<T>(
   }
 
   if (!res.ok) {
+    // A 401 means the session is missing/expired — let the app react globally
+    // (clear auth, redirect to login) before the caller sees the rejection.
+    if (res.status === 401) onUnauthorized?.()
     const message =
       (data as { error?: string })?.error ?? `Request failed (${res.status})`
     throw new ApiError(res.status, message)
