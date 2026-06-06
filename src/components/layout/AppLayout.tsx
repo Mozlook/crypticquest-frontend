@@ -57,6 +57,11 @@ export default function AppLayout() {
               toolkit
               {toolCount > 0 && <span className="ml-1 text-accent">· {toolCount}</span>}
             </button>
+            {user?.role === 'admin' && (
+              <NavLink to="/admin" className={navLinkClass}>
+                admin
+              </NavLink>
+            )}
           </nav>
 
           <div className="ml-auto flex items-center gap-4">

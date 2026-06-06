@@ -1,12 +1,17 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './auth/context'
 import FullScreenLoader from './components/FullScreenLoader'
 import ConnectionError from './components/ConnectionError'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PublicOnlyRoute from './routes/PublicOnlyRoute'
+import AdminRoute from './routes/AdminRoute'
 import AppLayout from './components/layout/AppLayout'
+import AdminLayout from './components/layout/AdminLayout'
 import Levels from './pages/Levels'
 import Puzzle from './pages/Puzzle'
+import AdminLevels from './pages/admin/AdminLevels'
+import AdminTools from './pages/admin/AdminTools'
+import AdminUsers from './pages/admin/AdminUsers'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import NotFound from './pages/NotFound'
@@ -34,6 +39,15 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<Levels />} />
           <Route path="/levels/:id" element={<Puzzle />} />
+
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Navigate to="/admin/levels" replace />} />
+              <Route path="levels" element={<AdminLevels />} />
+              <Route path="tools" element={<AdminTools />} />
+              <Route path="users" element={<AdminUsers />} />
+            </Route>
+          </Route>
         </Route>
       </Route>
 
