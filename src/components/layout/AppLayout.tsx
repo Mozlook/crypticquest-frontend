@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../../auth/context'
+import { useApi } from '../../hooks/useApi'
+import { endpoints } from '../../lib/endpoints'
+import type { Tool } from '../../types/tools'
 import ToolkitDrawer from './ToolkitDrawer'
+import ToolkitList from '../toolkit/ToolkitList'
 
 // AppLayout is the shell for the authenticated app: a terminal-style top bar
 // (wordmark, nav, current-level indicator, logout) over an <Outlet> where the
@@ -19,7 +23,16 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 export default function AppLayout() {
   const { user, logout } = useAuth()
   const [toolkitOpen, setToolkitOpen] = useState(false)
+  const { data: tools, error: toolsError, loading: toolsLoading, reload: reloadTools } =
+    useApi<Tool[]>(endpoints.tools)
   const level = String(user?.currentLevel ?? 1).padStart(2, '0')
+  const toolCount = tools?.length ?? 0
+
+  // Refetch on open so a tool unlocked since mount (by solving a level) shows up.
+  const openToolkit = () => {
+    reloadTools()
+    setToolkitOpen(true)
+  }
 
   return (
     <div className="min-h-screen">
@@ -36,12 +49,13 @@ export default function AppLayout() {
               levels
             </NavLink>
             <button
-              onClick={() => setToolkitOpen(true)}
+              onClick={openToolkit}
               aria-haspopup="dialog"
               aria-expanded={toolkitOpen}
               className={navItemClass}
             >
               toolkit
+              {toolCount > 0 && <span className="ml-1 text-accent">· {toolCount}</span>}
             </button>
           </nav>
 
@@ -67,11 +81,12 @@ export default function AppLayout() {
       </main>
 
       <ToolkitDrawer open={toolkitOpen} onClose={() => setToolkitOpen(false)}>
-        {/* Phase 3 replaces this with the unlocked tools list (GET /api/tools). */}
-        <p className="font-mono text-sm text-fg-muted">
-          <span className="text-fg-subtle">{'// '}</span>
-          your unlocked tools will appear here.
-        </p>
+        <ToolkitList
+          tools={tools}
+          error={toolsError}
+          loading={toolsLoading}
+          onRetry={reloadTools}
+        />
       </ToolkitDrawer>
     </div>
   )
