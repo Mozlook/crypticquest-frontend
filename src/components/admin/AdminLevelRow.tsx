@@ -7,12 +7,12 @@ import type { AdminLevel } from '../../types/levels'
 // the row owns only the confirm/pending/error UI.
 export default function AdminLevelRow({
   level,
-  toolTitle,
+  unlocks,
   onEdit,
   onDelete,
 }: {
   level: AdminLevel
-  toolTitle: string | null
+  unlocks: string | null
   onEdit: () => void
   onDelete: () => Promise<void>
 }) {
@@ -39,7 +39,7 @@ export default function AdminLevelRow({
       </td>
       <td className="py-3 pr-4 font-mono text-sm text-fg">{level.title}</td>
       <td className="py-3 pr-4 font-mono text-sm text-warning">{level.flag}</td>
-      <td className="py-3 pr-4 font-mono text-xs text-fg-muted">{toolTitle ?? '—'}</td>
+      <td className="py-3 pr-4 font-mono text-xs text-fg-muted">{unlocks ?? '—'}</td>
       <td className="py-3 text-right">
         {confirming ? (
           <span className="inline-flex items-center gap-3">

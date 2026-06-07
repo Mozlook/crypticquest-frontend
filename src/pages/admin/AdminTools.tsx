@@ -2,18 +2,27 @@ import { useState } from 'react'
 import { api } from '../../lib/api'
 import { useApi } from '../../hooks/useApi'
 import { endpoints } from '../../lib/endpoints'
-import type { Tool } from '../../types/tools'
+import type { AdminTool } from '../../types/tools'
+import type { AdminLevel } from '../../types/levels'
 import ToolForm from '../../components/admin/ToolForm'
 import AdminToolRow from '../../components/admin/AdminToolRow'
 
 // AdminTools is the toolkit CRUD section: a table of every tool with
-// create/edit/delete. A tool referenced by a level can't be deleted (409),
-// surfaced inline on the row.
-type Editing = Tool | 'new' | null
+// create/edit/delete. Each tool names the level it unlocks at; the levels list
+// feeds the form's selector and the table's "unlocks at" column.
+type Editing = AdminTool | 'new' | null
 
 export default function AdminTools() {
-  const { data: tools, error, loading, reload } = useApi<Tool[]>(endpoints.adminTools)
+  const { data: tools, error, loading, reload } = useApi<AdminTool[]>(endpoints.adminTools)
+  const { data: levels } = useApi<AdminLevel[]>(endpoints.adminLevels)
   const [editing, setEditing] = useState<Editing>(null)
+
+  const levelList = levels ?? []
+  const levelLabel = (id: number | null) => {
+    if (id == null) return null
+    const level = levelList.find((l) => l.id === id)
+    return level ? `${level.order_index}. ${level.title}` : `level #${id}`
+  }
 
   async function handleDelete(id: number) {
     await api.del(endpoints.adminTool(id))
@@ -29,6 +38,7 @@ export default function AdminTools() {
     return (
       <ToolForm
         tool={editing === 'new' ? null : editing}
+        levels={levelList}
         onSaved={handleSaved}
         onCancel={() => setEditing(null)}
       />
@@ -80,7 +90,7 @@ export default function AdminTools() {
         <table className="w-full min-w-[36rem]">
           <thead>
             <tr className="border-b border-border text-left">
-              {['type', 'title', 'content', ''].map((h, i) => (
+              {['type', 'title', 'content', 'unlocks at', ''].map((h, i) => (
                 <th
                   key={i}
                   className="pb-2 font-mono text-xs uppercase tracking-[0.15em] text-fg-subtle"
@@ -95,6 +105,7 @@ export default function AdminTools() {
               <AdminToolRow
                 key={tool.id}
                 tool={tool}
+                unlocksAt={levelLabel(tool.unlocks_at_level_id)}
                 onEdit={() => setEditing(tool)}
                 onDelete={() => handleDelete(tool.id)}
               />

@@ -13,3 +13,10 @@ export interface Tool {
   description: string
   content: string
 }
+
+// AdminTool is the admin-surface view (GET/POST/PUT /api/admin/tools). It adds
+// unlocks_at_level_id — the level whose solve unlocks this tool, or null when the
+// tool is tied to no level (never auto-unlocked). The player view omits it.
+export interface AdminTool extends Tool {
+  unlocks_at_level_id: number | null
+}

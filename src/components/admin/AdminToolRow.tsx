@@ -1,16 +1,19 @@
 import { useState } from 'react'
 import { ApiError } from '../../lib/api'
-import type { Tool } from '../../types/tools'
+import type { AdminTool } from '../../types/tools'
 
 // AdminToolRow is one row of the admin tools table with edit/delete. Delete is a
-// two-step inline confirm; a tool still unlocked by a level can't be deleted
-// (409), so the backend's "tool in use" message is shown verbatim.
+// two-step inline confirm and always allowed (the unlock relation lives on the
+// tool, so deleting one orphans no level). `unlocksAt` labels the level that
+// grants this tool.
 export default function AdminToolRow({
   tool,
+  unlocksAt,
   onEdit,
   onDelete,
 }: {
-  tool: Tool
+  tool: AdminTool
+  unlocksAt: string | null
   onEdit: () => void
   onDelete: () => Promise<void>
 }) {
@@ -43,6 +46,7 @@ export default function AdminToolRow({
           {tool.content}
         </span>
       </td>
+      <td className="py-3 pr-4 font-mono text-xs text-fg-muted">{unlocksAt ?? '—'}</td>
       <td className="py-3 text-right">
         {confirming ? (
           <span className="inline-flex items-center gap-3">

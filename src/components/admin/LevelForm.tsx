@@ -2,13 +2,13 @@ import { useState, type FormEvent } from 'react'
 import { ApiError, api } from '../../lib/api'
 import { endpoints } from '../../lib/endpoints'
 import type { AdminLevel } from '../../types/levels'
-import type { Tool } from '../../types/tools'
 import SubmitButton from '../ui/SubmitButton'
 
 // LevelForm creates or edits a level. `level === null` means create. Server-side
-// validation (order_index positivity/uniqueness, required fields, bad tool ref)
-// is authoritative and surfaced via the error banner; the form keeps only light
+// validation (order_index positivity/uniqueness, required fields) is
+// authoritative and surfaced via the error banner; the form keeps only light
 // client checks. On success it calls onSaved (the page reloads the list).
+// Which tools a level unlocks is set on the tool side now (see ToolForm).
 
 const fieldClass =
   'w-full rounded-md border border-border bg-surface-2/70 px-3.5 py-2.5 font-mono text-sm text-fg placeholder:text-fg-subtle transition-[border-color,box-shadow] focus:border-accent focus:shadow-[0_0_0_3px_rgba(52,245,160,0.12)] focus:outline-none'
@@ -16,12 +16,10 @@ const labelClass = 'mb-1.5 block font-mono text-xs uppercase tracking-[0.15em] t
 
 export default function LevelForm({
   level,
-  tools,
   onSaved,
   onCancel,
 }: {
   level: AdminLevel | null
-  tools: Tool[]
   onSaved: () => void
   onCancel: () => void
 }) {
@@ -30,9 +28,6 @@ export default function LevelForm({
   const [title, setTitle] = useState(level?.title ?? '')
   const [description, setDescription] = useState(level?.description ?? '')
   const [flag, setFlag] = useState(level?.flag ?? '')
-  const [unlocksToolId, setUnlocksToolId] = useState(
-    level?.unlocks_tool_id != null ? String(level.unlocks_tool_id) : '',
-  )
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -45,7 +40,6 @@ export default function LevelForm({
       title,
       description,
       flag,
-      unlocks_tool_id: unlocksToolId === '' ? null : Number(unlocksToolId),
     }
     try {
       if (editing) await api.put(endpoints.adminLevel(level.id), body)
@@ -126,25 +120,6 @@ export default function LevelForm({
           className={`${fieldClass} text-warning`}
           required
         />
-      </div>
-
-      <div>
-        <label htmlFor="unlocks_tool_id" className={labelClass}>
-          unlocks tool
-        </label>
-        <select
-          id="unlocks_tool_id"
-          value={unlocksToolId}
-          onChange={(e) => setUnlocksToolId(e.target.value)}
-          className={fieldClass}
-        >
-          <option value="">— unlocks nothing —</option>
-          {tools.map((tool) => (
-            <option key={tool.id} value={tool.id}>
-              {tool.title}
-            </option>
-          ))}
-        </select>
       </div>
 
       {error && (

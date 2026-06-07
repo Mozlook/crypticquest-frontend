@@ -3,25 +3,29 @@ import { api } from '../../lib/api'
 import { useApi } from '../../hooks/useApi'
 import { endpoints } from '../../lib/endpoints'
 import type { AdminLevel } from '../../types/levels'
-import type { Tool } from '../../types/tools'
+import type { AdminTool } from '../../types/tools'
 import LevelForm from '../../components/admin/LevelForm'
 import HintsEditor from '../../components/admin/HintsEditor'
 import AdminLevelRow from '../../components/admin/AdminLevelRow'
 
 // AdminLevels is the puzzles CRUD section: a table of every level (flag and
 // order shown) with create/edit/delete. Editing swaps the table for the form.
-// The tools list feeds the form's "unlocks tool" selector and the table's tool
-// column.
+// The "unlocks" column is derived from the tools side (each tool names the level
+// it unlocks at), so one level can show several tools.
 type Editing = AdminLevel | 'new' | null
 
 export default function AdminLevels() {
   const { data: levels, error, loading, reload } = useApi<AdminLevel[]>(endpoints.adminLevels)
-  const { data: tools } = useApi<Tool[]>(endpoints.adminTools)
+  const { data: tools } = useApi<AdminTool[]>(endpoints.adminTools)
   const [editing, setEditing] = useState<Editing>(null)
 
-  const toolList = tools ?? []
-  const toolTitle = (id: number | null) =>
-    id == null ? null : (toolList.find((t) => t.id === id)?.title ?? `tool #${id}`)
+  // Reverse lookup: the tools a given level unlocks, joined into a label.
+  const unlocksLabel = (levelId: number) => {
+    const titles = (tools ?? [])
+      .filter((t) => t.unlocks_at_level_id === levelId)
+      .map((t) => t.title)
+    return titles.length > 0 ? titles.join(', ') : null
+  }
 
   async function handleDelete(id: number) {
     await api.del(endpoints.adminLevel(id))
@@ -38,7 +42,6 @@ export default function AdminLevels() {
       <div className="space-y-8">
         <LevelForm
           level={editing === 'new' ? null : editing}
-          tools={toolList}
           onSaved={handleSaved}
           onCancel={() => setEditing(null)}
         />
@@ -109,7 +112,7 @@ export default function AdminLevels() {
               <AdminLevelRow
                 key={level.id}
                 level={level}
-                toolTitle={toolTitle(level.unlocks_tool_id)}
+                unlocks={unlocksLabel(level.id)}
                 onEdit={() => setEditing(level)}
                 onDelete={() => handleDelete(level.id)}
               />
