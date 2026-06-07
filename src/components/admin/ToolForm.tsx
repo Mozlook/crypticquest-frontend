@@ -151,7 +151,7 @@ export default function ToolForm({
           onChange={(e) => setUnlocksAtLevelId(e.target.value)}
           className={fieldClass}
         >
-          <option value="">— not tied to a level —</option>
+          <option value="">— always available —</option>
           {levels.map((level) => (
             <option key={level.id} value={level.id}>
               {level.order_index}. {level.title}

@@ -19,7 +19,7 @@ export default function AdminTools() {
 
   const levelList = levels ?? []
   const levelLabel = (id: number | null) => {
-    if (id == null) return null
+    if (id == null) return 'always' // no level gate -> always available
     const level = levelList.find((l) => l.id === id)
     return level ? `${level.order_index}. ${level.title}` : `level #${id}`
   }
