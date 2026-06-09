@@ -9,6 +9,7 @@ import AppLayout from './components/layout/AppLayout'
 import AdminLayout from './components/layout/AdminLayout'
 import Levels from './pages/Levels'
 import Puzzle from './pages/Puzzle'
+import About from './pages/About'
 import AdminLevels from './pages/admin/AdminLevels'
 import AdminTools from './pages/admin/AdminTools'
 import AdminUsers from './pages/admin/AdminUsers'
@@ -39,6 +40,7 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<Levels />} />
           <Route path="/levels/:id" element={<Puzzle />} />
+          <Route path="/about" element={<About />} />
 
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminLayout />}>

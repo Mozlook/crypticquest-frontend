@@ -57,6 +57,9 @@ export default function AppLayout() {
               toolkit
               {toolCount > 0 && <span className="ml-1 text-accent">· {toolCount}</span>}
             </button>
+            <NavLink to="/about" className={navLinkClass}>
+              about
+            </NavLink>
             {user?.role === 'admin' && (
               <NavLink to="/admin" className={navLinkClass}>
                 admin

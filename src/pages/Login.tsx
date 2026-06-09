@@ -3,8 +3,12 @@ import { Link, useLocation } from 'react-router-dom'
 import AuthShell from '../components/auth/AuthShell'
 import TextField from '../components/ui/TextField'
 import SubmitButton from '../components/ui/SubmitButton'
+import AboutModal from '../components/about/AboutModal'
 import { useAuth } from '../auth/context'
 import { ApiError } from '../lib/api'
+
+// First-visit marker for the briefing modal (same `cq:` prefix as hint timers).
+const ABOUT_SEEN_KEY = 'cq:about-seen'
 
 export default function Login() {
   const { login } = useAuth()
@@ -15,6 +19,15 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  // The briefing opens itself once for newcomers, and on demand from the footer.
+  const [aboutOpen, setAboutOpen] = useState(
+    () => localStorage.getItem(ABOUT_SEEN_KEY) === null,
+  )
+
+  function closeAbout() {
+    localStorage.setItem(ABOUT_SEEN_KEY, '1')
+    setAboutOpen(false)
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -41,6 +54,15 @@ export default function Login() {
           <Link to="/register" className="text-accent transition-colors hover:text-accent-hover">
             request access
           </Link>
+          <span className="mx-2 text-fg-subtle">·</span>
+          <button
+            onClick={() => setAboutOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={aboutOpen}
+            className="text-fg-muted underline underline-offset-2 transition-colors hover:text-fg"
+          >
+            what is this?
+          </button>
         </>
       }
     >
@@ -90,6 +112,8 @@ export default function Login() {
           {submitting ? 'authenticating…' : 'authenticate →'}
         </SubmitButton>
       </form>
+
+      <AboutModal open={aboutOpen} onClose={closeAbout} />
     </AuthShell>
   )
 }
